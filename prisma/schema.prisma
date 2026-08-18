@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // hashed
+  name      String
+  role      String   @default("FIELD_STAFF") // ADMIN | FIELD_STAFF
+  createdAt DateTime @default(now())
+}
+
+model Store {
+  id              String             @id @default(cuid())
+  name            String
+  address         String?
+  zohoWarehouseId String?            // nullable on purpose — not every store maps 1:1 to a Zoho warehouse yet
+  batches         ConsignmentBatch[]
+  createdAt       DateTime           @default(now())
+}
+
+model Product {
+  id           String      @id @default(cuid())
+  sku          String      @unique // NEVER allow a Product row with null/empty SKU — reject at the API layer, not just the DB layer
+  name         String
+  price        Float       @default(0.0)
+  zohoItemId   String?     @unique
+  lastSyncedAt DateTime?
+  updatedAt    DateTime    @updatedAt
+  batchItems   BatchItem[]
+}
+
+model ConsignmentBatch {
+  id              String           @id @default(cuid())
+  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId         String
+  status          String           @default("ACTIVE") // ACTIVE | RECONCILED
+  items           BatchItem[]
+  reconciliations Reconciliation[]
+  zohoTransferId  String?
+  createdBy       String           // User id
+  createdAt       DateTime         @default(now())
+}
+
+model BatchItem {
+  id        String           @id @default(cuid())
+  batch     ConsignmentBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  batchId   String
+  product   Product          @relation(fields: [productId], references: [id])
+  productId String
+  sentQty   Int              // must be > 0, validate on input
+}
+
+model Reconciliation {
+  id          String               @id @default(cuid())
+  batch       ConsignmentBatch     @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  batchId     String
+  scans       ReconciliationScan[]
+  settlement  Settlement?
+  performedBy String               // User id
+  createdAt   DateTime             @default(now())
+}
+
+model ReconciliationScan {
+  id               String         @id @default(cuid())
+  reconciliation   Reconciliation @relation(fields: [reconciliationId], references: [id], onDelete: Cascade)
+  reconciliationId String
+  productId        String
+  scannedQty       Int
+  scannedAt        DateTime       @default(now()) // keep one row per scan event, not just a running total — needed for audit trail
+}
+
+model Settlement {
+  id               String         @id @default(cuid())
+  reconciliation   Reconciliation @relation(fields: [reconciliationId], references: [id], onDelete: Cascade)
+  reconciliationId String         @unique
+  totalValue       Float          @default(0.0)
+  zohoInvoiceId    String?
+  status           String         @default("PENDING") // PENDING | SENT_TO_ZOHO | CONFIRMED | FAILED
+  createdAt        DateTime       @default(now())
+}
+
+model ZohoSyncLog {
+  id           String   @id @default(cuid())
+  operation    String   // e.g. "transfer_order_create", "invoice_create", "catalog_sync"
+  entityType   String   // e.g. "ConsignmentBatch", "Settlement"
+  entityId     String
+  zohoResponse String?  // JSON stringified payload
+  status       String   // success | failed | skipped
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, entityId, operation])
+}

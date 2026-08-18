@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# نظام إدارة بضاعة الأمانة والتوزيع المباشر (Consignment & DSD Reconciliation System)
 
-## Getting Started
+نظام سحابي متكامل ومتقدم لإدارة وتتبع إرساليات بضاعة الأمانة (Consignment) والتوزيع المباشر للمتاجر ونقاط البيع (DSD)، ومطابقة المخزون الميداني عبر مسح الباركود، وإصدار فواتير المبيعات آلياً في **Zoho Inventory**.
 
-First, run the development server:
+---
 
+## 🌟 الميزات الرئيسية (Key Features)
+
+- 🌐 **واجهة عربية بالكامل (RTL):** تصميم عصري وتفاعلي يدعم اللغة العربية بالكامل مع خط Cairo المحسّن.
+- 📦 **إدارة إرساليات بضاعة الأمانة (Consignment Dispatch):** إنشاء وتتبع الشحنات الموردة لكل متجر مع مزامنة أوامر التحويل في Zoho.
+- 📱 **محطة مسح باركود متطورة:**
+  - دعم قارئات الباركود اللاسلكية والـ USB مع التركيز التلقائي.
+  - دعم مسح الباركود عبر كاميرا الهاتف أو الحاسوب فورياً.
+  - تنبيهات صوتية ومرئية عند المسح الناجح أو الباركود غير المعروف.
+  - سجل زمني لحظي ومباشر لعمليات المسح.
+- ⚠️ **معالجة الفروقات الذكية (Anomaly Detection):** كشف حالات المسح الزائد عن الكمية المرسلة وحماية الفاتورة من القيم السالبة.
+- 🧾 **تسوية الفواتير والمزامنة مع Zoho Inventory:**
+  - حساب الكميات المباعة آلياً: $\text{الكمية المباعة} = \text{المرسل} - \text{المتبقي بالمحل}$.
+  - إنشاء فواتير المبيعات (Sales Invoices) تلقائياً في Zoho Inventory بنقرة زر مع دعم إعادة المحاولة.
+  - إمكانية طباعة إشعار التسوية والفاتورة.
+- 🏬 **إدارة المتاجر ونقاط البيع:** ربط المتاجر بمستودعات Zoho المقابلة مع إمكانية التعديل السريع.
+- 📊 **لوحة تحكم ومؤشرات قياس (Dashboard & KPIs):** متابعة فورية لقيمة البضاعة المعلقة في الميدان وتنبيه المتاجر المتأخرة عن الجرد (>14 يوم).
+- 📜 **سجل تدقيق شامل (Audit Logs & History):** سجل تاريخي غير قابل للتعديل لكافة عمليات الجرد والتسوية وطلبات الـ API.
+
+---
+
+## 📖 دليل الاستخدام المفصل
+للحصول على شرح خطوة بخطوة لطريقة استخدام النظام، يرجى الاطلاع على:
+👉 **[دليل الاستخدام الكامل (دليل_الاستخدام.md)](./دليل_الاستخدام.md)**
+
+---
+
+## 🚀 التشغيل والبدء السريع (Getting Started)
+
+### 1. تثبيت الحزم (Install Dependencies)
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. إعداد قاعدة البيانات (Setup Database)
+```bash
+npx prisma db push
+npx prisma db seed
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. تشغيل الخادم المحلي (Run Dev Server)
+```bash
+npm run dev
+```
+افتح المتصفح على: `http://localhost:3000`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🔑 الحسابات التجريبية الافتراضية (Demo Accounts)
 
-To learn more about Next.js, take a look at the following resources:
+| الدور (Role) | البريد الإلكتروني (Email) | كلمة المرور (Password) |
+|---|---|---|
+| **مدير النظام (Admin)** | `admin@consignment.test` | `admin123` |
+| **مندوب ميداني (Field Staff)** | `staff@consignment.test` | `staff123` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ التقنيات المستخدمة (Tech Stack)
+- **Framework:** Next.js 15 (App Router, React 19, TypeScript)
+- **Styling:** Tailwind CSS (Dark Mode & RTL Support)
+- **Database & ORM:** SQLite / PostgreSQL + Prisma ORM
+- **Authentication:** NextAuth.js
+- **Scanner:** HTML5-QRCode + Web Audio API Synthesizer
+- **Integration:** Zoho Inventory REST API (Transfer Orders, Invoices, Item Catalog)
